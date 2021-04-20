@@ -8,8 +8,8 @@ the main module and originate from the user's command-line options.
 This function can be thought to return a collection of instances of subclasses
 of `AttributeFilter` - a 1-argument callable (on a `CloseApproach`) constructed
 from a comparator (from the `operator` module), a reference value, and a class
-method `get` that subclasses can override to fetch an attribute of interest from
-the supplied `CloseApproach`.
+method `get` that subclasses can override to fetch an attribute of interest
+from the supplied `CloseApproach`.
 
 The `limit` function simply limits the maximum number of values produced by an
 iterator.
@@ -19,6 +19,7 @@ You'll edit this file in Tasks 3a and 3c.
 import operator
 from itertools import islice
 
+
 class UnsupportedCriterionError(NotImplementedError):
     """A filter criterion is unsupported."""
 
@@ -27,9 +28,9 @@ class AttributeFilter:
     """A general superclass for filters on comparable attributes.
 
     An `AttributeFilter` represents the search criteria pattern comparing some
-    attribute of a close approach (or its attached NEO) to a reference value. It
-    essentially functions as a callable predicate for whether a `CloseApproach`
-    object satisfies the encoded criterion.
+    attribute of a close approach (or its attached NEO) to a reference value.
+    It essentially functions as a callable predicate for whether a
+    `CloseApproach` object satisfies the encoded criterion.
 
     It is constructed with a comparator operator and a reference value, and
     calling the filter (with __call__) executes `get(approach) OP value` (in
@@ -38,6 +39,7 @@ class AttributeFilter:
     Concrete subclasses can override the `get` classmethod to provide custom
     behavior to fetch a desired attribute from the given `CloseApproach`.
     """
+
     def __init__(self, op, value):
         """Construct a new `AttributeFilter` from an binary predicate and a reference value.
 
@@ -64,47 +66,61 @@ class AttributeFilter:
         interest from the supplied `CloseApproach`.
 
         :param approach: A `CloseApproach` on which to evaluate this filter.
-        :return: The value of an attribute of interest, comparable to `self.value` via `self.op`.
+        :return: The value of an attribute of interest, comparable to
+        `self.value` via `self.op`.
         """
         raise UnsupportedCriterionError
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(op=operator.{self.op.__name__}, value={self.value})"
+        """Computer-readable string representation."""
+        return (f"{self.__class__.__name__}(op=operator.{self.op.__name__}, "
+                f"value={self.value})")
 
 
 class DistanceFilter(AttributeFilter):
-    """NEO Distance filter class"""
+    """NEO Distance filter class."""
+
     @classmethod
     def get(cls, approach):
+        """Get method."""
         return approach.distance
 
+
 class VelocityFilter(AttributeFilter):
-    """NEO Velocity filter class"""
+    """NEO Velocity filter class."""
+
     @classmethod
     def get(cls, approach):
-        """Returns NEO's appoach velocity"""
+        """Return NEO's appoach velocity."""
         return approach.velocity
 
+
 class DateFilter(AttributeFilter):
-    """NEO Date filter class"""
+    """NEO Date filter class."""
+
     @classmethod
     def get(cls, approach):
-        """Returns date of the appoach"""
+        """Return date of the appoach."""
         return approach.time.date()
 
+
 class DiameterFilter(AttributeFilter):
-    """NEO Diameter filter class"""
+    """NEO Diameter filter class."""
+
     @classmethod
     def get(cls, approach):
-        """Returns NEO diameter"""
+        """Return NEO diameter."""
         return approach.neo.diameter
-    
+
+
 class HazardousFilter(AttributeFilter):
-    """NEO Hazardous filter class"""
+    """NEO Hazardous filter class."""
+
     @classmethod
     def get(cls, approach):
-        """Returns whether NEO is hazardous or not"""
+        """Return whether NEO is hazardous or not."""
         return approach.neo.hazardous
+
 
 def create_filters(
                    date=None, start_date=None, end_date=None,
@@ -114,31 +130,41 @@ def create_filters(
                    hazardous=None):
     """Create a collection of filters from user-specified criteria.
 
-    Each of these arguments is provided by the main module with a value from the
-    user's options at the command line. Each one corresponds to a different type
-    of filter. For example, the `--date` option corresponds to the `date`
-    argument, and represents a filter that selects close approaches that occured
-    on exactly that given date. Similarly, the `--min-distance` option
+    Each of these arguments is provided by the main module with a value from
+    the user's options at the command line. Each one corresponds to a different
+    type of filter. For example, the `--date` option corresponds to the `date`
+    argument, and represents a filter that selects close approaches that
+    occured on exactly that given date. Similarly, the `--min-distance` option
     corresponds to the `distance_min` argument, and represents a filter that
     selects close approaches whose nominal approach distance is at least that
     far away from Earth. Each option is `None` if not specified at the command
     line (in particular, this means that the `--not-hazardous` flag results in
     `hazardous=False`, not to be confused with `hazardous=None`).
 
-    The return value must be compatible with the `query` method of `NEODatabase`
-    because the main module directly passes this result to that method. For now,
-    this can be thought of as a collection of `AttributeFilter`s.
+    The return value must be compatible with the `query` method of
+    `NEODatabase` because the main module directly passes this result to that
+    method. For now, this can be thought of as a collection of
+    `AttributeFilter`s.
 
     :param date: A `date` on which a matching `CloseApproach` occurs.
-    :param start_date: A `date` on or after which a matching `CloseApproach` occurs.
-    :param end_date: A `date` on or before which a matching `CloseApproach` occurs.
-    :param distance_min: A minimum nominal approach distance for a matching `CloseApproach`.
-    :param distance_max: A maximum nominal approach distance for a matching `CloseApproach`.
-    :param velocity_min: A minimum relative approach velocity for a matching `CloseApproach`.
-    :param velocity_max: A maximum relative approach velocity for a matching `CloseApproach`.
-    :param diameter_min: A minimum diameter of the NEO of a matching `CloseApproach`.
-    :param diameter_max: A maximum diameter of the NEO of a matching `CloseApproach`.
-    :param hazardous: Whether the NEO of a matching `CloseApproach` is potentially hazardous.
+    :param start_date: A `date` on or after which a matching `CloseApproach`
+    occurs.
+    :param end_date: A `date` on or before which a matching `CloseApproach`
+    occurs.
+    :param distance_min: A minimum nominal approach distance for a matching
+    `CloseApproach`.
+    :param distance_max: A maximum nominal approach distance for a matching
+    `CloseApproach`.
+    :param velocity_min: A minimum relative approach velocity for a matching
+    `CloseApproach`.
+    :param velocity_max: A maximum relative approach velocity for a matching
+    `CloseApproach`.
+    :param diameter_min: A minimum diameter of the NEO of a matching
+    `CloseApproach`.
+    :param diameter_max: A maximum diameter of the NEO of a matching
+    `CloseApproach`.
+    :param hazardous: Whether the NEO of a matching `CloseApproach`
+    is potentially hazardous.
     :return: A collection of filters for use with `query`.
     """
     data = []
@@ -163,7 +189,7 @@ def create_filters(
     if hazardous is not None:
         data.append(HazardousFilter(operator.eq, hazardous))
 
-    return data
+    return tuple(data)
 
 
 def limit(iterator, n=None):
